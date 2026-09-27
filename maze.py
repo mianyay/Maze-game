@@ -4,13 +4,14 @@ import random
 import time
 
 # 2 = wall, 0 = open path, 1 = player, 3 = exit
-myarr = []
 col = 1
 row = 1
 turtle.hideturtle()
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 map_file_path = os.path.join(script_dir, "map.txt")
+
+directions = [(-1, 0), (1, 0), (0, -1), (0,1)]
 
 def maze_generation(cols, rows):
     width = cols * 2 + 1
@@ -23,10 +24,9 @@ def maze_generation(cols, rows):
 
     stack = [(0, 0)]
     visited[0][0] = True
-    row, col = cell_to_grid(0, 0)
+    row, col = cell_to_grid(last_cell[0], last_cell[1])
     grid[row][col] = "1"
     last_cell = (0, 0)
-    # directions = [(-1, 0), (1, 0), (0, -1), (0,1)]
     #left =	cx - 1, cy
     #right = cx + 1, cy
     #up	= cx, cy - 1
@@ -43,13 +43,13 @@ def maze_generation(cols, rows):
 
         if neighbours:
             nx, ny, dx, dy = random.choice(neighbours)
-            visited[ny, nx] = True
+            visited[ny][nx] = True
             row, col = cell_to_grid(cx, cy)
             grid[row + dy][col + dx] = "0"
             nr, nc = cell_to_grid(nx, ny)
             grid[nr][nc] = "0"
             stack.append((nx, ny))
-            last_cell(nx, ny)
+            last_cell = (nx, ny)
         else:
             stack.pop()
     exit_row, exit_col = cell_to_grid(last_cell)     
@@ -69,11 +69,17 @@ def drawSquare(x, y, side, colour):
             turtle.right(90)
         turtle.end_fill()
 
+myarr = maze_generation(6, 6)
+
 def drawMap():
-    x = -120
-    y = 60
-    originalX = -120
-    side = 10
+    width_maze = len(myarr[0])
+    height_maze = len(myarr)
+    side = min(700 / width_maze, 650 / height_maze)
+
+    x = (width_maze * side) / 2
+    y = (height_maze * side) / 2
+    originalX = x
+
 
     turtle.tracer(0, 0)
     for arr in myarr:
@@ -86,6 +92,8 @@ def drawMap():
                 drawSquare(x, y, side, "red")
             elif value == "\n":
                 drawSquare(x, y, side, "none")
+            elif value == "3":
+                drawSquare(x, y, side, "blue")
             else:
                 drawSquare(x, y, side, "black")
             x += side
@@ -95,11 +103,23 @@ def drawMap():
 
 drawMap()
 
+def next_level():
+    global myarr, row, col, next_level
+    level += 1
+    cols = 2 + level
+    rows = 2 + level
+
+    myarr = maze_generation(rows, cols)
+    row, col = maze_generation(0, 0)
+
+    turtle.clear()
+    drawMap()
+
 def up():
     global myarr
     global row
     global col
-    if (myarr[row - 1][col] == "0"):
+    if myarr[row - 1][col] in ("0", "3"):
         myarr[row][col] = "0"
         row -= 1
         if myarr[row][col] == "3":
@@ -113,7 +133,7 @@ def down():
     global myarr
     global row
     global col
-    if (myarr[row + 1][col] == "0"):
+    if myarr[row + 1][col] in ("0", "3"):
         myarr[row][col] = "0"
         row += 1
         if myarr[row][col] == "3":
@@ -127,7 +147,7 @@ def left():
     global myarr
     global row
     global col
-    if (myarr[row][col - 1] == "0"):
+    if myarr[row][col - 1] in ("0", "3"):
         myarr[row][col] = "0"
         col -= 1
         if myarr[row][col] == "3":
@@ -141,7 +161,7 @@ def right():
     global myarr
     global row
     global col
-    if (myarr[row][col + 1] == "0"):
+    if myarr[row][col + 1] in ("0", "3"):
         myarr[row][col] = "0"
         col += 1
         if myarr[row][col] == "3":
