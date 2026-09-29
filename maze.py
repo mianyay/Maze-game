@@ -6,10 +6,8 @@ import time
 # 2 = wall, 0 = open path, 1 = player, 3 = exit
 col = 1
 row = 1
+level = 1
 turtle.hideturtle()
-
-script_dir = os.path.dirname(os.path.abspath(__file__))
-map_file_path = os.path.join(script_dir, "map.txt")
 
 directions = [(-1, 0), (1, 0), (0, -1), (0,1)]
 
@@ -24,7 +22,7 @@ def maze_generation(cols, rows):
 
     stack = [(0, 0)]
     visited[0][0] = True
-    row, col = cell_to_grid(last_cell[0], last_cell[1])
+    row, col = cell_to_grid(0, 0)
     grid[row][col] = "1"
     last_cell = (0, 0)
     #left =	cx - 1, cy
@@ -52,7 +50,7 @@ def maze_generation(cols, rows):
             last_cell = (nx, ny)
         else:
             stack.pop()
-    exit_row, exit_col = cell_to_grid(last_cell)     
+    exit_row, exit_col = cell_to_grid(last_cell[0], last_cell[1])     
     grid[exit_row][exit_col] = "3"
         
 
@@ -69,14 +67,14 @@ def drawSquare(x, y, side, colour):
             turtle.right(90)
         turtle.end_fill()
 
-myarr = maze_generation(6, 6)
+myarr = maze_generation(4 + level, 4 + level)
 
 def drawMap():
     width_maze = len(myarr[0])
     height_maze = len(myarr)
     side = min(700 / width_maze, 650 / height_maze)
 
-    x = (width_maze * side) / 2
+    x = -(width_maze * side) / 2
     y = (height_maze * side) / 2
     originalX = x
 
@@ -104,13 +102,13 @@ def drawMap():
 drawMap()
 
 def next_level():
-    global myarr, row, col, next_level
+    global myarr, row, col, level
     level += 1
-    cols = 2 + level
-    rows = 2 + level
+    cols = 4 + level
+    rows = 4 + level
 
-    myarr = maze_generation(rows, cols)
-    row, col = maze_generation(0, 0)
+    myarr = maze_generation(cols, rows)
+    row, col = 1, 1
 
     turtle.clear()
     drawMap()
