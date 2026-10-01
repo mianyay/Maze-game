@@ -1,4 +1,3 @@
-import os
 import turtle
 import random
 import time
@@ -8,6 +7,10 @@ col = 1
 row = 1
 level = 1
 turtle.hideturtle()
+turtlepen = turtle.Turtle()
+turtlepen.penup()
+turtlepen.color("black")
+turtlepen.hideturtle()
 
 directions = [(-1, 0), (1, 0), (0, -1), (0,1)]
 
@@ -99,11 +102,17 @@ def drawMap():
         x = originalX
     turtle.update()
 
+def level_text():
+        global level
+        turtlepen.clear()
+        turtlepen.goto(0, 340)
+        turtlepen.write(f"Level {level}", align="center", font=("Sans Serif", 16, "bold"))
 drawMap()
 
 def next_level():
     global myarr, row, col, level
     level += 1
+    turtle.title(f"Maze Level: Level {level}")
     cols = 4 + level
     rows = 4 + level
 
@@ -112,6 +121,7 @@ def next_level():
 
     turtle.clear()
     drawMap()
+    level_text()
 
 def up():
     global myarr
@@ -169,15 +179,31 @@ def right():
     turtle.clear()
     drawMap()
 
-# turtle movement using keys
-turtle.onkey(up, "w")
-turtle.onkey(left, "a")
-turtle.onkey(down, "s")
-turtle.onkey(right, "d")
-turtle.onkey(up, "Up")
-turtle.onkey(left, "Left")
-turtle.onkey(down, "Down")
-turtle.onkey(right, "Right")
+# turtle continous movement
+key_hold = set()
+
+def key_down(key):
+    key_hold.add(key)
+
+def key_up(key):
+    key_hold.discard(key)
+
+for key in ("w", "a", "s", "d", "Up", "Down", "Left", "Right"):
+    turtle.onkeypress(lambda k=key: key_down(k), key)
+    turtle.onkeyrelease(lambda k=key: key_up(k), key)
+
+def loop_game():
+    if "w" in key_hold or "Up" in key_hold:
+        up()
+    elif "s" in key_hold or "Down" in key_hold:
+        down()
+    elif "d" in key_hold or "Right" in key_hold:
+        right()
+    elif "a" in key_hold or "Left" in key_hold:
+        left()
+
+    turtle.ontimer(loop_game, 150)
 
 turtle.listen()
+loop_game()
 turtle.mainloop()
