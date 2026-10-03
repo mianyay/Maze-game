@@ -10,9 +10,6 @@ An infinite maze game where each level is randomised and different every time yo
 - collectible ghosts
 - infinite, randomised mazes
 - wasd, up down right left arrows
-  
-## How to run
-Download the files and open index.html in a browser.
 
 ## Built with
 Python, mostly using the turtle module 
